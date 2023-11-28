@@ -1,7 +1,8 @@
 // Import required AWS SDK clients and commands for Node.js
-import { AnalyzeDocumentCommand } from "@aws-sdk/client-textract";
+import { AnalyzeDocumentCommand, DetectDocumentTextCommand } from "@aws-sdk/client-textract";
 import { TextractClient } from "@aws-sdk/client-textract";
 import { fromIni } from "@aws-sdk/credential-providers";
+import { text } from "stream/consumers";
 
 // Set the AWS Region.
 const REGION = "ap-southeast-1"; //e.g. "us-east-1"
@@ -14,7 +15,7 @@ const textractClient = new TextractClient({
 });
 
 const bucket = "apollo-textract-spike";
-const photo = "input/Temasek-Review-2023-Highlights.pdf";
+const photo = "input/executive_summary.png";
 
 // Set params
 const params = {
@@ -68,6 +69,9 @@ const analyze_document_text = async () => {
     const response = await textractClient.send(analyzeDoc);
     //console.log(response)
     displayBlockInfo(response);
+    const detectText = new DetectDocumentTextCommand(params)
+    const detectResponse = await textractClient.send(detectText);
+    console.log(detectResponse);
     return response; // For unit tests.
   } catch (err) {
     console.log("Error", err);
