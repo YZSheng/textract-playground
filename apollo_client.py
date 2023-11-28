@@ -17,5 +17,5 @@ def summarize_image():
     print(response.text)
 
 if __name__ == "__main__":
-  print("Hello World")
+  print("Summarizing image: executive_summary.png")
   summarize_image()
