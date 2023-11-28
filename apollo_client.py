@@ -14,7 +14,7 @@ def summarize_image():
       'Content-Type': multipart_data.content_type,
     }
     response = requests.post(url, data=multipart_data, headers=headers)
-    print(response.text)
+    print(response.json())
 
 if __name__ == "__main__":
   print("Summarizing image: executive_summary.png")
