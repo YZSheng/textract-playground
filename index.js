@@ -1,8 +1,24 @@
 // Import required AWS SDK clients and commands for Node.js
-import { AnalyzeDocumentCommand, DetectDocumentTextCommand } from "@aws-sdk/client-textract";
+import {
+  AnalyzeDocumentCommand,
+  DetectDocumentTextCommand,
+} from "@aws-sdk/client-textract";
 import { TextractClient } from "@aws-sdk/client-textract";
 import { fromIni } from "@aws-sdk/credential-providers";
 import { text } from "stream/consumers";
+import fs from "fs";
+
+function encodePdfToBase64(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, { encoding: "base64" }, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
 
 // Set the AWS Region.
 const REGION = "ap-southeast-1"; //e.g. "us-east-1"
@@ -65,17 +81,35 @@ const displayBlockInfo = async (response) => {
 
 const analyze_document_text = async () => {
   try {
-    const analyzeDoc = new AnalyzeDocumentCommand(params);
+    const filePath = "How to Write an Executive Summary.pdf";
+    const fileData = fs.readFileSync(filePath);
+    const uint8ArrayData = new Uint8Array(fileData);
+    const analyzeDoc = new AnalyzeDocumentCommand({
+      Document: {
+        Bytes: uint8ArrayData,
+      },
+    });
     const response = await textractClient.send(analyzeDoc);
-    //console.log(response)
-    displayBlockInfo(response);
-    const detectText = new DetectDocumentTextCommand(params)
-    const detectResponse = await textractClient.send(detectText);
-    console.log(detectResponse);
-    return response; // For unit tests.
+    return response; 
   } catch (err) {
     console.log("Error", err);
   }
 };
 
+
+const detectText = async () => {
+  const filePath = "executive_summary.png";
+  const fileData = fs.readFileSync(filePath);
+  const uint8ArrayData = new Uint8Array(fileData);
+
+  const detectText = new DetectDocumentTextCommand({
+    Document: {
+      Bytes: uint8ArrayData,
+    },
+  });
+  const detectResponse = await textractClient.send(detectText);
+  console.log(detectResponse);
+};
+
+// detectText();
 analyze_document_text();
