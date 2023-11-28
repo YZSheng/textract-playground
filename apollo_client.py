@@ -12,6 +12,7 @@ def __guess_mime_type(path: str):
 
 
 def detect_text(path: str):
+  print("detect text on", path)
   with open(path, "rb") as f:
     url = "http://localhost:3000/api/textract"
     multipart_data = MultipartEncoder(
@@ -26,6 +27,5 @@ def detect_text(path: str):
     print(response.json())
 
 if __name__ == "__main__":
-  print("Summarizing image: executive_summary.png")
   # detect_text("executive_summary.png")
   detect_text("How to Write an Executive Summary.pdf")
