@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/client-textract";
 import { TextractClient } from "@aws-sdk/client-textract";
 import { fromIni } from "@aws-sdk/credential-providers";
-import { text } from "stream/consumers";
 import fs from "fs";
 
 function encodePdfToBase64(filePath) {
@@ -81,7 +80,7 @@ const displayBlockInfo = async (response) => {
 
 const analyze_document_text = async () => {
   try {
-    const filePath = "How to Write an Executive Summary.pdf";
+    const filePath = "executive_summary.png";
     const fileData = fs.readFileSync(filePath);
     const uint8ArrayData = new Uint8Array(fileData);
     const analyzeDoc = new AnalyzeDocumentCommand({
@@ -90,12 +89,11 @@ const analyze_document_text = async () => {
       },
     });
     const response = await textractClient.send(analyzeDoc);
-    return response; 
+    return response;
   } catch (err) {
     console.log("Error", err);
   }
 };
-
 
 const detectText = async () => {
   const filePath = "executive_summary.png";
@@ -111,5 +109,5 @@ const detectText = async () => {
   console.log(detectResponse);
 };
 
-// detectText();
-analyze_document_text();
+detectText();
+// analyze_document_text();
