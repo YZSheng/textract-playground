@@ -117,6 +117,7 @@ const processDocumment = async (
     }
     // while not found, continue to poll for response
     console.log(`Start Job ID: ${response.JobId}`);
+    startJobId = response.JobId;
     while (jobFound == false) {
       var sqsReceivedResponse = await sqsClient.send(
         new ReceiveMessageCommand({
@@ -312,14 +313,14 @@ const GetResults = async (processType, JobID) => {
     var response = null;
     if (processType == "ANALYSIS") {
       if (paginationToken == null) {
-        response = textractClient.send(
+        response = await textractClient.send(
           new GetDocumentAnalysisCommand({
             JobId: JobID,
             MaxResults: maxResults,
           })
         );
       } else {
-        response = textractClient.send(
+        response = await textractClient.send(
           new GetDocumentAnalysisCommand({
             JobId: JobID,
             MaxResults: maxResults,
@@ -331,14 +332,14 @@ const GetResults = async (processType, JobID) => {
 
     if (processType == "DETECTION") {
       if (paginationToken == null) {
-        response = textractClient.send(
+        response = await textractClient.send(
           new GetDocumentTextDetectionCommand({
             JobId: JobID,
             MaxResults: maxResults,
           })
         );
       } else {
-        response = textractClient.send(
+        response = await textractClient.send(
           new GetDocumentTextDetectionCommand({
             JobId: JobID,
             MaxResults: maxResults,
@@ -350,28 +351,30 @@ const GetResults = async (processType, JobID) => {
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
     console.log("Detected Documented Text");
-    console.log(response);
+    console.log(response.Blocks?.length);
+    console.log(response.NextToken);
     //console.log(Object.keys(response))
-    console.log(typeof response);
-    var blocks = (await response).Blocks;
+    // console.log(typeof response);
+    // console.log(typeof response);
+    // var blocks = (await response).Blocks;
     // console.log(blocks);
     // console.log(typeof blocks);
-    var docMetadata = (await response).DocumentMetadata;
+    // var docMetadata = (await response).DocumentMetadata;
     // var blockString = JSON.stringify(blocks);
     // var parsed = JSON.parse(JSON.stringify(blocks));
-    console.log(Object.keys(blocks));
-    console.log(`Pages: ${docMetadata.Pages}`);
+    // console.log(Object.keys(blocks));
+    // console.log(`Pages: ${docMetadata.Pages}`);
     // blocks.forEach((block) => {
     //   displayBlockInfo(block);
     //   console.log();
     //   console.log();
     // });
 
-    displayBlockInfo(blocks[0]);
+    // displayBlockInfo(blocks[0]);
     //console.log(blocks[0].BlockType)
     //console.log(blocks[1].BlockType)
 
-    if (String(response).includes("NextToken")) {
+    if (response.NextToken) {
       paginationToken = response.NextToken;
     } else {
       finished = true;
