@@ -16,7 +16,7 @@ const bedrockClient = new BedrockRuntimeClient({
 
 const decoder = new TextDecoder();
 
-const response = await bedrockClient.send(
+const nonStreamingResponse = await bedrockClient.send(
   new InvokeModelCommand({
     body: JSON.stringify({
       prompt: "\n\nHuman: explain black holes to 8th graders\n\nAssistant:",
@@ -30,4 +30,30 @@ const response = await bedrockClient.send(
   })
 );
 
-console.log(decoder.decode(response.body));
+console.log("Non-streaming response:");
+console.log(decoder.decode(nonStreamingResponse.body));
+console.log("\n");
+
+const streamingResponse = await bedrockClient.send(
+  new InvokeModelWithResponseStreamCommand({
+    body: JSON.stringify({
+      prompt:
+        "\n\nHuman: What is the definition of Clean Code in software engineering?\n\nAssistant:",
+      max_tokens_to_sample: 1000,
+      temperature: 0.1,
+      top_p: 0.9,
+    }),
+    contentType: "application/json",
+    accept: "application/json",
+    modelId: "anthropic.claude-v2",
+  })
+);
+
+async function printStreams(streams) {
+  for await (const stream of streams) {
+    console.log(decoder.decode(stream.chunk.bytes));
+  }
+}
+
+console.log("Streaming response:");
+await printStreams(streamingResponse.body);
