@@ -81,6 +81,8 @@ const processDocumment = async (
     var dotLine = 0;
     var processType = type;
     var validType = false;
+    console.log(`roleArn: ${roleArn}`);
+    console.log(`snsTopicArn: ${snsTopicArn}`);
 
     if (processType == "DETECTION") {
       var response = await textractClient.send(
@@ -88,8 +90,8 @@ const processDocumment = async (
           DocumentLocation: { S3Object: { Bucket: bucket, Name: videoName } },
           NotificationChannel: { RoleArn: roleArn, SNSTopicArn: snsTopicArn },
           OutputConfig: {
-            S3Bucket: 'apollo-textract-output'
-          }
+            S3Bucket: "apollo-textract-spike",
+          },
         })
       );
       console.log("Processing type: Detection. Response is:");
@@ -103,8 +105,8 @@ const processDocumment = async (
           DocumentLocation: { S3Object: { Bucket: bucket, Name: videoName } },
           NotificationChannel: { RoleArn: roleArn, SNSTopicArn: snsTopicArn },
           OutputConfig: {
-            S3Bucket: 'apollo-textract-output'
-          }
+            S3Bucket: "apollo-textract-output",
+          },
         })
       );
       console.log("Processing type: Analysis");
