@@ -46,7 +46,7 @@ const snsClient = new SNSClient({
 // Set bucket and video variables
 const bucket = "apollo-textract-spike";
 const documentName =
-  "input/b1539517-b543-4c22-a8d5-8bf3a2a947b3/How to Write an Executive Summary.pdf";
+  "input/b1539517-b543-4c22-a8d5-8bf3a2a947b3/one_pager_summary.pdf";
 const roleArn = "arn:aws:iam::618030345807:role/TextractRole";
 const processType = "DETECTION";
 var startJobId = "";
@@ -66,7 +66,7 @@ const sqsParams = {
 };
 
 // Process a document based on operation type
-const processDocumment = async (
+const processDocument = async (
   type,
   bucket,
   videoName,
@@ -194,7 +194,7 @@ const processDocumment = async (
 };
 
 // Create the SNS topic and SQS Queue
-const createTopicandQueue = async () => {
+const createTopicAndQueue = async () => {
   try {
     // Create SNS topic
     const topicResponse = await snsClient.send(
@@ -269,41 +269,42 @@ const deleteTopicAndQueue = async (sqsQueueUrlArg, snsTopicArnArg) => {
 };
 
 const displayBlockInfo = async (block) => {
-  console.log(`Block ID: ${block.Id}`);
-  console.log(`Block Type: ${block.BlockType}`);
-  if (String(block).includes(String("EntityTypes"))) {
-    console.log(`EntityTypes: ${block.EntityTypes}`);
-  }
-  if (String(block).includes(String("Text"))) {
-    console.log(`EntityTypes: ${block.Text}`);
-  }
-  if (!String(block.BlockType).includes("PAGE")) {
-    console.log(`Confidence: ${block.Confidence}`);
-  }
-  console.log(`Page: ${block.Page}`);
-  if (String(block.BlockType).includes("CELL")) {
-    console.log("Cell Information");
-    console.log(`Column: ${block.ColumnIndex}`);
-    console.log(`Row: ${block.RowIndex}`);
-    console.log(`Column Span: ${block.ColumnSpan}`);
-    console.log(`Row Span: ${block.RowSpan}`);
-    if (String(block).includes("Relationships")) {
-      console.log(`Relationships: ${block.Relationships}`);
-    }
-  }
+  // console.log(`Block ID: ${block.Id}`);
+  // console.log(`Block Type: ${block.BlockType}`);
+  // if (String(block).includes(String("EntityTypes"))) {
+  //   console.log(`EntityTypes: ${block.EntityTypes}`);
+  // }
+  // if (String(block).includes(String("Text"))) {
+  //   console.log(`EntityTypes: ${block.Text}`);
+  // }
+  // if (!String(block.BlockType).includes("PAGE")) {
+  //   console.log(`Confidence: ${block.Confidence}`);
+  // }
+  // console.log(`Page: ${block.Page}`);
+  // if (String(block.BlockType).includes("CELL")) {
+  //   console.log("Cell Information");
+  //   console.log(`Column: ${block.ColumnIndex}`);
+  //   console.log(`Row: ${block.RowIndex}`);
+  //   console.log(`Column Span: ${block.ColumnSpan}`);
+  //   console.log(`Row Span: ${block.RowSpan}`);
+  //   if (String(block).includes("Relationships")) {
+  //     console.log(`Relationships: ${block.Relationships}`);
+  //   }
+  // }
 
-  console.log("Geometry");
-  console.log(`Bounding Box: ${JSON.stringify(block.Geometry.BoundingBox)}`);
-  console.log(`Polygon: ${JSON.stringify(block.Geometry.Polygon)}`);
+  // console.log("Geometry");
+  // console.log(`Bounding Box: ${JSON.stringify(block.Geometry.BoundingBox)}`);
+  // console.log(`Polygon: ${JSON.stringify(block.Geometry.Polygon)}`);
 
-  if (String(block.BlockType).includes("SELECTION_ELEMENT")) {
-    console.log("Selection Element detected:");
-    if (String(block.SelectionStatus).includes("SELECTED")) {
-      console.log("Selected");
-    } else {
-      console.log("Not Selected");
-    }
-  }
+  // if (String(block.BlockType).includes("SELECTION_ELEMENT")) {
+  //   console.log("Selection Element detected:");
+  //   if (String(block.SelectionStatus).includes("SELECTED")) {
+  //     console.log("Selected");
+  //   } else {
+  //     console.log("Not Selected");
+  //   }
+  // }
+  console.log(block);
 };
 
 const GetResults = async (processType, JobID) => {
@@ -355,26 +356,26 @@ const GetResults = async (processType, JobID) => {
     console.log("Detected Documented Text");
     console.log(response.Blocks?.length);
     console.log(response.NextToken);
-    //console.log(Object.keys(response))
+    // console.log(Object.keys(response))
     // console.log(typeof response);
     // console.log(typeof response);
-    // var blocks = (await response).Blocks;
+    var blocks = (await response).Blocks;
     // console.log(blocks);
     // console.log(typeof blocks);
-    // var docMetadata = (await response).DocumentMetadata;
-    // var blockString = JSON.stringify(blocks);
-    // var parsed = JSON.parse(JSON.stringify(blocks));
-    // console.log(Object.keys(blocks));
-    // console.log(`Pages: ${docMetadata.Pages}`);
-    // blocks.forEach((block) => {
-    //   displayBlockInfo(block);
-    //   console.log();
-    //   console.log();
-    // });
+    var docMetadata = (await response).DocumentMetadata;
+    var blockString = JSON.stringify(blocks);
+    var parsed = JSON.parse(JSON.stringify(blocks));
+    console.log(Object.keys(blocks));
+    console.log(`Pages: ${docMetadata.Pages}`);
+    blocks.forEach((block) => {
+      displayBlockInfo(block);
+      console.log();
+      console.log();
+    });
 
-    // displayBlockInfo(blocks[0]);
-    //console.log(blocks[0].BlockType)
-    //console.log(blocks[1].BlockType)
+    displayBlockInfo(blocks[0]);
+    console.log(blocks[0].BlockType)
+    console.log(blocks[1].BlockType)
 
     if (response.NextToken) {
       paginationToken = response.NextToken;
@@ -386,8 +387,8 @@ const GetResults = async (processType, JobID) => {
 
 // DELETE TOPIC AND QUEUE
 const main = async () => {
-  var sqsAndTopic = await createTopicandQueue();
-  var process = await processDocumment(
+  var sqsAndTopic = await createTopicAndQueue();
+  var process = await processDocument(
     processType,
     bucket,
     documentName,

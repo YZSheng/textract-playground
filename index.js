@@ -109,5 +109,5 @@ const detectText = async () => {
   console.log(detectResponse);
 };
 
-detectText();
+// detectText();
 // analyze_document_text();
