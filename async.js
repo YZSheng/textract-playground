@@ -25,6 +25,7 @@ import {
 } from "@aws-sdk/client-textract";
 import { stdout } from "process";
 import { fromIni } from "@aws-sdk/credential-providers";
+import fs from 'fs';
 
 // Set the AWS Region.
 const REGION = "ap-southeast-1"; //e.g. "us-east-1"
@@ -312,6 +313,7 @@ const GetResults = async (processType, JobID) => {
   var paginationToken = null;
   var finished = false;
 
+  let allBlocks = [];
   while (finished == false) {
     var response = null;
     if (processType == "ANALYSIS") {
@@ -362,6 +364,7 @@ const GetResults = async (processType, JobID) => {
     var blocks = (await response).Blocks;
     // console.log(blocks);
     // console.log(typeof blocks);
+    allBlocks = [...allBlocks, ...blocks];
     var docMetadata = (await response).DocumentMetadata;
     var blockString = JSON.stringify(blocks);
     var parsed = JSON.parse(JSON.stringify(blocks));
@@ -383,6 +386,7 @@ const GetResults = async (processType, JobID) => {
       finished = true;
     }
   }
+  fs.writeFileSync('blocks.txt', JSON.stringify(allBlocks));
 };
 
 // DELETE TOPIC AND QUEUE
