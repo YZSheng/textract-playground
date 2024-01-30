@@ -1,6 +1,12 @@
 import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import fs from "fs";
+import {
+  TranslateClient,
+  TranslateDocumentCommand,
+} from "@aws-sdk/client-translate";
+import { fromIni } from "@aws-sdk/credential-providers";
+
 
 const translatePosition = (size, x, y, width, height) => {
   const translatedX = x * size.width;
@@ -13,7 +19,7 @@ const translatePosition = (size, x, y, width, height) => {
   };
 };
 
-async function replaceTextInPdf(pdfBuffer, blocks, translation, toLang = "zh") {
+async function replaceTextInPdf(pdfBuffer, blocks, translation) {
   const fontBytes = fs.readFileSync("./han_sans_cn_light.otf");
   // Load a PDFDocument from the existing PDF bytes
   const pdfDoc = await PDFDocument.load(pdfBuffer);
